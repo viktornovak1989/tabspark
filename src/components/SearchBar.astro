@@ -54,12 +54,10 @@ import { REDIRECT_URL } from '../config';
       // Check cache first
       const cachedResult = keywordCache.get(query);
       if (cachedResult) {
-        console.log('Cache hit for query:', query);
         return cachedResult;
       }
 
       try {
-        console.log('Fetching from API for query:', query);
         const response = await fetch(`/api/keywords?q=${encodeURIComponent(query)}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const suggestions = await response.json();
