@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+
 interface Site {
   url: string;
   title: string;
@@ -32,6 +34,8 @@ const popularSites: Site[] = [
     favicon: 'https://www.amazon.com/favicon.ico',
   },
 ];
+
+const defaultFavicon = 'https://www.svgrepo.com/show/528352/link-minimalistic-2.svg';
 ---
 
 <div class="quick-sparks">
@@ -39,7 +43,16 @@ const popularSites: Site[] = [
     {
       popularSites.map((site) => (
         <a href={site.url} target="_blank" rel="noopener noreferrer" class="quick-spark-item">
-          <img src={site.favicon} alt={site.title} />
+          <Image
+            src={site.favicon}
+            alt={`${site.title} favicon`}
+            width={48}
+            height={48}
+            format="webp"
+            loading="eager"
+            class="favicon"
+            onerror={`this.onerror=null; this.src='${defaultFavicon}'`}
+          />
           <span>{site.title}</span>
         </a>
       ))
