@@ -71,18 +71,20 @@ import { REDIRECT_URL } from '../config';
         return []; // Return empty array on error
       }
     },
-    onSubmit: (rawQuery) => {
-      if (!rawQuery || !rawQuery.trim || !rawQuery.trim().length) {
-        return;
-      }
-
-      const query = encodeURIComponent(rawQuery);
-      const searchUrl = `${REDIRECT_URL}?p=${query}`;
-
-      window.open(searchUrl, '_blank');
-    },
+    onSubmit: submit,
     debounceTime: 250,
   });
+
+  function submit(rawQuery) {
+    if (!rawQuery || !rawQuery.trim || !rawQuery.trim().length) {
+      return;
+    }
+
+    const query = encodeURIComponent(rawQuery);
+    const searchUrl = `${REDIRECT_URL}?p=${query}`;
+
+    window.open(searchUrl, '_blank');
+  }
 </script>
 <style is:global>
   .autocomplete {
