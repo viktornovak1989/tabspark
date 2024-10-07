@@ -46,8 +46,9 @@ import { REDIRECT_URL } from '../config';
   }
 
   const keywordCache = new KeywordCache();
+  const input = document.querySelector('#autocomplete');
 
-  new Autocomplete('#autocomplete', {
+  new Autocomplete(input, {
     search: async (query) => {
       if (query.length < 1) return []; // Don't search for empty queries
 
@@ -72,6 +73,7 @@ import { REDIRECT_URL } from '../config';
       }
     },
     onSubmit: submit,
+    autoSelect: true,
     debounceTime: 250,
   });
 
@@ -85,6 +87,15 @@ import { REDIRECT_URL } from '../config';
 
     window.open(searchUrl, '_blank');
   }
+
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+    }
+    if (event.key === 'Enter') {
+      submit(event.target.value);
+    }
+  });
 </script>
 <style is:global>
   .autocomplete {
