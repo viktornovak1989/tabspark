@@ -1,223 +1,182 @@
 ---
-// import { keywords, getSearchUrl } from '../config';
+import { keywords } from '../keywords';
+import { REDIRECT_URL } from '../config';
 ---
 
-<!-- <div
-  class="search-container"
-  role="combobox"
-  aria-haspopup="listbox"
-  aria-expanded="false"
-  aria-owns="autoComplete_list"
->
+<div id="autocomplete" class="autocomplete">
   <input
-    id="autoComplete"
+    class="autocomplete-input"
     type="text"
-    class="search-input"
     placeholder="Search here or type a URL"
-    autocomplete="off"
+    role="combobox"
+    aria-haspopup="listbox"
+    aria-expanded="false"
     aria-autocomplete="list"
-    aria-controls="autoComplete_list"
+    aria-controls="autocomplete-result-list"
+    tabindex="0"
   />
-  <ul id="autoComplete_list" role="listbox" class="autoComplete_list"></ul>
-</div> --><!-- <script define:vars={{ keywords, getSearchUrl }}>
-  function submit(rawQuery) {
-    if (!rawQuery || !rawQuery.trim || !rawQuery.trim().length) {
-      return;
-    }
+  <ul id="autocomplete-result-list" class="autocomplete-result-list" role="listbox"></ul>
+</div>
 
-    const query = encodeURIComponent(rawQuery);
-    const searchUrl = getSearchUrl(query);
+<script is:inline src="/node_modules/@trevoreyre/autocomplete-js/dist/autocomplete.min.js"></script>
+<script is:inline define:vars={{ keywords, REDIRECT_URL }}>
+  new Autocomplete('#autocomplete', {
+    search: (query) => {
+      return keywords
+        .filter((word) => word.toLowerCase().startsWith(query.toLowerCase()))
+        .slice(0, 8);
+    },
+    onSubmit: (rawQuery) => {
+      if (!rawQuery || !rawQuery.trim || !rawQuery.trim().length) {
+        return;
+      }
 
-    window.open(searchUrl, '_blank');
-    searchInput.value = '';
-  }
+      const query = encodeURIComponent(rawQuery);
+      const searchUrl = `${REDIRECT_URL}?p=${query}`;
 
-  const searchInput = document.getElementById('autoComplete');
-  const searchContainer = searchInput.parentElement;
-
-  const autoCompleteJS = new autoComplete({
-    selector: '#autoComplete',
-    placeHolder: searchInput.placeholder,
-    data: {
-      src: keywords,
+      window.open(searchUrl, '_blank');
     },
-    resultItem: {
-      highlight: true,
-    },
-    resultsList: {
-      id: 'autoComplete_list',
-    },
-    events: {
-      input: {
-        open: () => {
-          searchContainer.setAttribute('aria-expanded', 'true');
-        },
-        close: () => {
-          searchContainer.setAttribute('aria-expanded', 'false');
-        },
-      },
-    },
-    tabSelect: true,
-    submit: true,
   });
-
-  searchInput.focus();
-
-  searchInput.addEventListener('selection', (event) => {
-    submit(event.detail.selection.value);
-  });
-
-  searchInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-      submit(searchInput.value);
-    }
-
-    if (event.key === 'Tab') {
-      event.preventDefault();
-      autoCompleteJS.next();
-    }
-  });
-</script> --><!-- 
+</script>
 <style is:global>
-  .search-container {
-    text-align: center;
-  }
-
-  .autoComplete_wrapper {
-    display: inline-block;
-    position: relative;
-    margin: 5vh var(--spacing-md);
-  }
-
-  .autoComplete_wrapper > input {
-    height: 3rem;
+  .autocomplete {
     max-width: 620px;
     width: 90vw;
-    padding: 0 var(--spacing-lg) 0 3.2rem;
-    font-size: var(--font-size-base);
-    color: var(--color-primary-transparent);
-    border-radius: var(--border-radius-lg);
-    border: 0.05rem solid var(--color-primary-transparent);
-    background-image: url(favicon.png);
-    background-size: 1.4rem;
-    background-position: left 1.05rem top 0.8rem;
-    background-repeat: no-repeat;
-    background-origin: border-box;
+    margin: var(--spacing-sm) auto;
+  }
+  .autocomplete-input {
     background-color: var(--color-background-transparent);
+    background-image: url('/favicon.png');
+    background-size: 28px;
+    background-position: 12px;
+    background-repeat: no-repeat;
+    border: 0.05rem solid var(--color-primary-transparent);
+    border-radius: var(--border-radius-lg);
+    box-sizing: border-box;
+    flex: 1;
+    font-size: var(--font-size-base);
+    line-height: 1.5;
+    padding: 12px 12px 12px 48px;
+    position: relative;
+    width: 100%;
+    color: var(--color-primary-transparent);
+    height: 3rem;
+    max-width: 620px;
     transition: all 0.4s ease;
     caret-color: var(--color-primary);
   }
 
-  .dark-theme .autoComplete_wrapper > input {
+  .dark-theme .autocomplete-input {
     background-color: var(--color-background-transparent-dark);
     color: var(--color-text-dark);
     border-color: var(--color-border-dark);
   }
 
-  /* Input placeholder styles */
-  .autoComplete_wrapper > input::placeholder {
-    color: var(--color-primary-transparent);
-    transition: all 0.3s ease;
-  }
-
-  .dark-theme .autoComplete_wrapper > input::placeholder {
-    color: var(--color-text-dark);
-  }
-
-  .autoComplete_wrapper > input:hover::placeholder,
-  .autoComplete_wrapper > input:focus::placeholder {
-    color: var(--color-primary);
-  }
-
-  .dark-theme .autoComplete_wrapper > input:hover::placeholder,
-  .dark-theme .autoComplete_wrapper > input:focus::placeholder {
-    color: var(--color-text-dark);
-  }
-
-  /* Input focus styles */
-  .autoComplete_wrapper > input:focus {
+  .autocomplete-input:focus,
+  .autocomplete-input[aria-expanded='true'] {
+    background-color: var(--color-background-transparent);
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 2px var(--color-shadow);
     outline: none;
     color: var(--color-primary);
-    border-color: var(--color-primary);
   }
 
-  .dark-theme .autoComplete_wrapper > input:focus {
+  .dark-theme .autocomplete-input:focus,
+  .dark-theme .autocomplete-input[aria-expanded='true'] {
     color: var(--color-text-dark);
   }
 
-  /* Autocomplete list styles */
-  .autoComplete_wrapper > ul {
+  [data-position='below'] .autocomplete-input[aria-expanded='true'] {
+    border-bottom-color: transparent;
+  }
+
+  [data-position='above'] .autocomplete-input[aria-expanded='true'] {
+    border-top-color: transparent;
+    z-index: 2;
+  }
+
+  .autocomplete[data-loading='true']:after {
+    animation: rotate 1s linear infinite;
+    border: 3px solid var(--color-primary-transparent);
+    border-radius: 100%;
+    border-right-color: var(--color-primary);
+    content: '';
+    height: 20px;
     position: absolute;
-    max-height: 226px;
-    width: 100%;
-    margin-top: var(--spacing-sm);
-    padding: 0;
-    z-index: 1;
-    list-style: none;
-    border-radius: var(--border-radius-md);
-    background-color: var(--color-background-transparent);
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+  }
+
+  .autocomplete-result-list {
+    background: var(--color-background-transparent);
     border: 1px solid var(--color-border);
-    box-shadow: 0 3px 6px var(--color-shadow);
+    box-shadow: 0 2px 2px var(--color-shadow);
+    box-sizing: border-box;
+    list-style: none;
+    margin: 0;
+    max-height: 296px;
+    overflow-y: auto;
+    padding: 0;
+    border-radius: var(--border-radius-md);
     backdrop-filter: blur(4px);
     transition: opacity 0.15s ease-in-out;
   }
 
-  .dark-theme .autoComplete_wrapper > ul {
+  .dark-theme .autocomplete-result-list {
     background-color: var(--color-background-transparent-dark);
     box-shadow: 0 3px 6px var(--color-shadow-dark);
   }
 
-  .autoComplete_wrapper > ul:empty,
-  .autoComplete_wrapper > ul[hidden] {
-    opacity: 0;
-    transform: scale(0);
+  [data-position='below'] .autocomplete-result-list {
+    border-top-color: transparent;
+    margin-top: -1px;
+    padding-bottom: var(--spacing-sm);
   }
 
-  .autoComplete_wrapper > ul > li {
+  [data-position='above'] .autocomplete-result-list {
+    border-bottom-color: transparent;
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    margin-bottom: -1px;
+    padding-top: var(--spacing-sm);
+  }
+
+  .autocomplete-result {
+    cursor: default;
+    padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) 48px;
     margin: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
     text-align: left;
     font-size: var(--font-size-base);
     color: var(--color-text);
     border-radius: var(--border-radius-sm);
-    background-color: transparent;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     transition: all 0.2s ease;
   }
 
-  .dark-theme .autoComplete_wrapper > ul > li {
+  .dark-theme .autocomplete-result {
     color: var(--color-text-dark);
   }
 
-  .autoComplete_wrapper > ul > li mark {
-    background-color: transparent;
-    color: var(--color-primary);
-    font-weight: bold;
-  }
-
-  .autoComplete_wrapper > ul > li:hover,
-  .autoComplete_wrapper > ul > li[aria-selected='true'] {
-    cursor: pointer;
+  .autocomplete-result:hover,
+  .autocomplete-result[aria-selected='true'] {
     background-color: var(--color-primary-light);
   }
 
-  @media only screen and (max-width: 600px) {
-    .autoComplete_wrapper > input {
-      width: 90vw;
+  @keyframes rotate {
+    0% {
+      transform: translateY(-50%) rotate(0deg);
     }
-
-    .quick-sparks-grid {
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    }
-
-    .time {
-      font-size: 2.5rem;
-    }
-
-    .date {
-      font-size: var(--font-size-base);
+    to {
+      transform: translateY(-50%) rotate(359deg);
     }
   }
-</style> -->
+
+  @media only screen and (max-width: 600px) {
+    .autocomplete-input {
+      width: 90vw;
+    }
+  }
+</style>
