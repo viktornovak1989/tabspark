@@ -1,0 +1,22 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: var(--font-family-main);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+}
+
+.dark-theme body {
+  color: var(--color-text-dark);
+  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+}

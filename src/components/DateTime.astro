@@ -1,0 +1,59 @@
+---
+
+---
+
+<div class="time-date-section">
+  <div id="time" class="time"></div>
+  <div id="date" class="date"></div>
+</div>
+
+<style>
+  .time-date-section {
+    text-align: center;
+    padding: var(--spacing-lg) 0;
+  }
+
+  .time {
+    font-size: var(--font-size-xlarge);
+    font-weight: bold;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .date {
+    font-size: var(--font-size-large);
+    color: var(--color-primary-transparent);
+  }
+
+  :global(.dark-theme) .time {
+    color: var(--color-text-dark);
+  }
+
+  :global(.dark-theme) .date {
+    color: var(--color-text-light);
+  }
+</style>
+
+<script>
+  function updateTimeAndDate() {
+    const now = new Date();
+
+    const timeElement = document.getElementById('time');
+    const dateElement = document.getElementById('date');
+
+    if (!timeElement || !dateElement) {
+      return;
+    }
+
+    timeElement.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    dateElement.textContent = now.toLocaleDateString(
+      undefined,
+      options as Intl.DateTimeFormatOptions
+    );
+  }
+
+  updateTimeAndDate();
+  setInterval(updateTimeAndDate, 1000);
+</script>

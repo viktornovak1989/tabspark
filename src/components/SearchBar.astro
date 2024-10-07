@@ -1,0 +1,223 @@
+---
+// import { keywords, getSearchUrl } from '../config';
+---
+
+<!-- <div
+  class="search-container"
+  role="combobox"
+  aria-haspopup="listbox"
+  aria-expanded="false"
+  aria-owns="autoComplete_list"
+>
+  <input
+    id="autoComplete"
+    type="text"
+    class="search-input"
+    placeholder="Search here or type a URL"
+    autocomplete="off"
+    aria-autocomplete="list"
+    aria-controls="autoComplete_list"
+  />
+  <ul id="autoComplete_list" role="listbox" class="autoComplete_list"></ul>
+</div> --><!-- <script define:vars={{ keywords, getSearchUrl }}>
+  function submit(rawQuery) {
+    if (!rawQuery || !rawQuery.trim || !rawQuery.trim().length) {
+      return;
+    }
+
+    const query = encodeURIComponent(rawQuery);
+    const searchUrl = getSearchUrl(query);
+
+    window.open(searchUrl, '_blank');
+    searchInput.value = '';
+  }
+
+  const searchInput = document.getElementById('autoComplete');
+  const searchContainer = searchInput.parentElement;
+
+  const autoCompleteJS = new autoComplete({
+    selector: '#autoComplete',
+    placeHolder: searchInput.placeholder,
+    data: {
+      src: keywords,
+    },
+    resultItem: {
+      highlight: true,
+    },
+    resultsList: {
+      id: 'autoComplete_list',
+    },
+    events: {
+      input: {
+        open: () => {
+          searchContainer.setAttribute('aria-expanded', 'true');
+        },
+        close: () => {
+          searchContainer.setAttribute('aria-expanded', 'false');
+        },
+      },
+    },
+    tabSelect: true,
+    submit: true,
+  });
+
+  searchInput.focus();
+
+  searchInput.addEventListener('selection', (event) => {
+    submit(event.detail.selection.value);
+  });
+
+  searchInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      submit(searchInput.value);
+    }
+
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      autoCompleteJS.next();
+    }
+  });
+</script> --><!-- 
+<style is:global>
+  .search-container {
+    text-align: center;
+  }
+
+  .autoComplete_wrapper {
+    display: inline-block;
+    position: relative;
+    margin: 5vh var(--spacing-md);
+  }
+
+  .autoComplete_wrapper > input {
+    height: 3rem;
+    max-width: 620px;
+    width: 90vw;
+    padding: 0 var(--spacing-lg) 0 3.2rem;
+    font-size: var(--font-size-base);
+    color: var(--color-primary-transparent);
+    border-radius: var(--border-radius-lg);
+    border: 0.05rem solid var(--color-primary-transparent);
+    background-image: url(favicon.png);
+    background-size: 1.4rem;
+    background-position: left 1.05rem top 0.8rem;
+    background-repeat: no-repeat;
+    background-origin: border-box;
+    background-color: var(--color-background-transparent);
+    transition: all 0.4s ease;
+    caret-color: var(--color-primary);
+  }
+
+  .dark-theme .autoComplete_wrapper > input {
+    background-color: var(--color-background-transparent-dark);
+    color: var(--color-text-dark);
+    border-color: var(--color-border-dark);
+  }
+
+  /* Input placeholder styles */
+  .autoComplete_wrapper > input::placeholder {
+    color: var(--color-primary-transparent);
+    transition: all 0.3s ease;
+  }
+
+  .dark-theme .autoComplete_wrapper > input::placeholder {
+    color: var(--color-text-dark);
+  }
+
+  .autoComplete_wrapper > input:hover::placeholder,
+  .autoComplete_wrapper > input:focus::placeholder {
+    color: var(--color-primary);
+  }
+
+  .dark-theme .autoComplete_wrapper > input:hover::placeholder,
+  .dark-theme .autoComplete_wrapper > input:focus::placeholder {
+    color: var(--color-text-dark);
+  }
+
+  /* Input focus styles */
+  .autoComplete_wrapper > input:focus {
+    outline: none;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .dark-theme .autoComplete_wrapper > input:focus {
+    color: var(--color-text-dark);
+  }
+
+  /* Autocomplete list styles */
+  .autoComplete_wrapper > ul {
+    position: absolute;
+    max-height: 226px;
+    width: 100%;
+    margin-top: var(--spacing-sm);
+    padding: 0;
+    z-index: 1;
+    list-style: none;
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-background-transparent);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 3px 6px var(--color-shadow);
+    backdrop-filter: blur(4px);
+    transition: opacity 0.15s ease-in-out;
+  }
+
+  .dark-theme .autoComplete_wrapper > ul {
+    background-color: var(--color-background-transparent-dark);
+    box-shadow: 0 3px 6px var(--color-shadow-dark);
+  }
+
+  .autoComplete_wrapper > ul:empty,
+  .autoComplete_wrapper > ul[hidden] {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  .autoComplete_wrapper > ul > li {
+    margin: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    text-align: left;
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    border-radius: var(--border-radius-sm);
+    background-color: transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.2s ease;
+  }
+
+  .dark-theme .autoComplete_wrapper > ul > li {
+    color: var(--color-text-dark);
+  }
+
+  .autoComplete_wrapper > ul > li mark {
+    background-color: transparent;
+    color: var(--color-primary);
+    font-weight: bold;
+  }
+
+  .autoComplete_wrapper > ul > li:hover,
+  .autoComplete_wrapper > ul > li[aria-selected='true'] {
+    cursor: pointer;
+    background-color: var(--color-primary-light);
+  }
+
+  @media only screen and (max-width: 600px) {
+    .autoComplete_wrapper > input {
+      width: 90vw;
+    }
+
+    .quick-sparks-grid {
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+
+    .time {
+      font-size: 2.5rem;
+    }
+
+    .date {
+      font-size: var(--font-size-base);
+    }
+  }
+</style> -->
