@@ -1,13 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ThemeSwitcher from '../components/ThemeSwitcher.astro';
 import DateTime from '../components/DateTime.astro';
 import SearchBar from '../components/SearchBar.astro';
+import Shortcuts from '../components/Shortcuts.astro';
 ---
 
 <Layout>
   <main>
+    <ThemeSwitcher />
     <DateTime />
     <SearchBar />
+    <Shortcuts />
   </main>
 </Layout>
 
