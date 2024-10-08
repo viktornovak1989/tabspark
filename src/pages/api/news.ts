@@ -11,11 +11,12 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 export const GET: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.search);
+  const category = searchParams.get('category') || 'All';
 
   const apiUrl = 'https://feed.cf-se.com/v2/news';
   searchParams.set('numNews', '20');
   searchParams.set('url', 'https://www.pdf2docs.com');
-  searchParams.set('q', 'Entertainment');
+  searchParams.set('q', category === 'All' ? 'Entertainment' : category);
   searchParams.set('gd', 'SY1002515');
   searchParams.set('mkt', 'en-ca');
 
@@ -35,6 +36,12 @@ export const GET: APIRoute = async ({ request }) => {
   try {
     const response = await fetch(`${apiUrl}?${searchParams.toString()}`);
     const data = await response.json();
+
+    // Add category to each news item
+    data.NewsResults.Items = data.NewsResults.Items.map((item: any) => ({
+      ...item,
+      Category: category,
+    }));
 
     // Update the cache
     cache[cacheKey] = {

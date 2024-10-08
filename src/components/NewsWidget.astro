@@ -1,8 +1,5 @@
----
-
----
-
 <div class="news-feed">
+  <div id="category-chips" class="category-chips"></div>
   <div id="news-grid" class="news-grid"></div>
 </div>
 
@@ -11,13 +8,27 @@
     Title: string;
     DatePublished: string;
     Provider: string;
-    ThumbnailUrl: string;
+    ThumbnailUrl?: string;
     TargetedUrl: string;
+    Category: string;
   }
 
-  async function fetchNews() {
+  const categories = ['News', 'Lifestyle', 'Health', 'Food', 'Entertainment', 'Gaming', 'Travel'];
+  let currentCategory = 'Lifestyle';
+  const placeholderImageUrl =
+    'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png';
+
+  function getSavedCategory(): string {
+    return localStorage.getItem('selectedCategory') || 'Lifestyle';
+  }
+
+  function saveCategory(category: string): void {
+    localStorage.setItem('selectedCategory', category);
+  }
+
+  async function fetchNews(category: string = 'Lifestyle') {
     try {
-      const response = await fetch('/api/news');
+      const response = await fetch(`/api/news?category=${category}`);
       const data = await response.json();
       return data.NewsResults.Items as NewsItem[];
     } catch (error) {
@@ -32,14 +43,17 @@
     newsItem.href = item.TargetedUrl;
     newsItem.target = '_blank';
     newsItem.rel = 'noopener noreferrer';
+
+    const imageUrl = item.ThumbnailUrl || placeholderImageUrl;
+
     newsItem.innerHTML = `
       <div class="news-item-image">
-        <img src="${item.ThumbnailUrl}" alt="${item.Title}" />
+        <img src="${imageUrl}" alt="${item.Title}" onerror="this.onerror=null; this.src='${placeholderImageUrl}';" />
       </div>
       <div class="news-item-content">
         <h3 class="truncated">${item.Title}</h3>
         <div class="news-item-meta">
-          <span class="date">Published: ${new Date(item.DatePublished).toLocaleDateString()}</span>
+          <span class="date">${new Date(item.DatePublished).toLocaleDateString()}</span>
           <span class="provider">${item.Provider}</span>
         </div>
       </div>
@@ -47,18 +61,60 @@
     return newsItem;
   }
 
+  function createCategoryChips() {
+    const chipsContainer = document.getElementById('category-chips');
+    if (!chipsContainer) return;
+
+    categories.forEach((category) => {
+      const chip = document.createElement('button');
+      chip.className = 'category-chip';
+      chip.textContent = category;
+      chip.addEventListener('click', () => {
+        currentCategory = category;
+        saveCategory(category);
+        updateActiveChip();
+        loadNews();
+      });
+      chipsContainer.appendChild(chip);
+    });
+
+    const caption = document.createElement('div');
+    caption.className = 'caption';
+    caption.innerHTML = `<p>Content from Microsoft Start (<a href="https://privacy.microsoft.com/en-US/privacystatement" target="_blank">Privacy</a>)</p>`;
+
+    chipsContainer.appendChild(caption);
+
+    updateActiveChip();
+  }
+
+  function updateActiveChip() {
+    const chips = document.querySelectorAll('.category-chip');
+    chips.forEach((chip) => {
+      if (chip.textContent === currentCategory) {
+        chip.classList.add('active');
+      } else {
+        chip.classList.remove('active');
+      }
+    });
+  }
+
   async function loadNews() {
     const newsGrid = document.getElementById('news-grid');
     if (!newsGrid) return;
 
-    const newsItems = await fetchNews();
+    newsGrid.innerHTML = ''; // Clear existing news items
+    const newsItems = await fetchNews(currentCategory);
     newsItems.forEach((item) => {
       const newsItemElement = createNewsItem(item);
       newsGrid.appendChild(newsItemElement);
     });
   }
 
-  document.addEventListener('DOMContentLoaded', loadNews);
+  document.addEventListener('DOMContentLoaded', () => {
+    currentCategory = getSavedCategory();
+    createCategoryChips();
+    loadNews();
+  });
 </script>
 
 <style is:global>
@@ -126,7 +182,18 @@
     color: var(--color-text-light);
     display: flex;
     justify-content: space-between;
-    opacity: 0.7;
+    opacity: 0.6;
+  }
+
+  .caption {
+    margin-left: auto;
+    font-size: var(--font-size-small);
+    opacity: 0.6;
+  }
+
+  .caption a {
+    color: var(--color-primary);
+    text-decoration: none;
   }
 
   /* Dark theme styles */
@@ -146,5 +213,46 @@
 
   .dark-theme .news-item-meta {
     color: var(--color-text-dark);
+  }
+
+  .category-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .category-chip {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--color-background-light);
+    color: var(--color-text);
+    border: none;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease-in-out,
+      color 0.2s ease-in-out;
+  }
+
+  .category-chip:not(.active):hover {
+    text-decoration: underline;
+  }
+  .category-chip.active {
+    background-color: var(--color-primary);
+    color: var(--color-background);
+  }
+
+  /* Dark theme styles for new elements */
+  .dark-theme .category-chip {
+    background-color: var(--color-background-dark);
+    color: var(--color-text-dark);
+    border-color: var(--color-border-dark);
+  }
+
+  .dark-theme .category-chip:hover,
+  .dark-theme .category-chip.active {
+    background-color: var(--color-primary);
+    color: var(--color-background);
   }
 </style>
