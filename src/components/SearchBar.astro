@@ -1,5 +1,5 @@
 ---
-import { REDIRECT_URL } from '../config';
+
 ---
 
 <div id="autocomplete" class="autocomplete">
@@ -18,16 +18,21 @@ import { REDIRECT_URL } from '../config';
   <ul id="autocomplete-result-list" class="autocomplete-result-list" role="listbox"></ul>
 </div>
 
-<script is:inline src="/node_modules/@trevoreyre/autocomplete-js/dist/autocomplete.min.js"></script>
-<script is:inline define:vars={{ REDIRECT_URL }}>
+<script>
+  import Autocomplete from '@trevoreyre/autocomplete-js';
+  import { REDIRECT_URL } from '../config';
+
   class KeywordCache {
+    cache: Map<string, { value: string; expiry: number }>;
+    expirationTime: number;
+
     constructor(expirationTime = 5 * 60 * 1000) {
       // 5 minutes default
       this.cache = new Map();
       this.expirationTime = expirationTime;
     }
 
-    get(key) {
+    get(key: string) {
       const item = this.cache.get(key);
       if (!item) return null;
 
@@ -39,7 +44,7 @@ import { REDIRECT_URL } from '../config';
       return item.value;
     }
 
-    set(key, value) {
+    set(key: string, value: string) {
       const expiry = Date.now() + this.expirationTime;
       this.cache.set(key, { value, expiry });
     }
@@ -49,7 +54,7 @@ import { REDIRECT_URL } from '../config';
   const input = document.querySelector('#autocomplete');
 
   new Autocomplete(input, {
-    search: async (query) => {
+    search: async (query: string) => {
       if (query.length < 1) return []; // Don't search for empty queries
 
       // Check cache first
@@ -77,7 +82,7 @@ import { REDIRECT_URL } from '../config';
     debounceTime: 250,
   });
 
-  function submit(rawQuery) {
+  function submit(rawQuery: string) {
     if (!rawQuery || !rawQuery.trim || !rawQuery.trim().length) {
       return;
     }
@@ -88,7 +93,7 @@ import { REDIRECT_URL } from '../config';
     window.open(searchUrl, '_blank');
   }
 
-  input.addEventListener('keydown', (event) => {
+  input?.addEventListener('keydown', (event: any) => {
     if (event.key === 'Tab') {
       event.preventDefault();
     }
