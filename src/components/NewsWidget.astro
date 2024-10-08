@@ -1,0 +1,150 @@
+---
+
+---
+
+<div class="news-feed">
+  <div id="news-grid" class="news-grid"></div>
+</div>
+
+<script>
+  interface NewsItem {
+    Title: string;
+    DatePublished: string;
+    Provider: string;
+    ThumbnailUrl: string;
+    TargetedUrl: string;
+  }
+
+  async function fetchNews() {
+    try {
+      const response = await fetch('/api/news');
+      const data = await response.json();
+      return data.NewsResults.Items as NewsItem[];
+    } catch (error) {
+      console.error('Error fetching news:', error);
+      return [];
+    }
+  }
+
+  function createNewsItem(item: NewsItem) {
+    const newsItem = document.createElement('a');
+    newsItem.className = 'news-item';
+    newsItem.href = item.TargetedUrl;
+    newsItem.target = '_blank';
+    newsItem.rel = 'noopener noreferrer';
+    newsItem.innerHTML = `
+      <div class="news-item-image">
+        <img src="${item.ThumbnailUrl}" alt="${item.Title}" />
+      </div>
+      <div class="news-item-content">
+        <h3 class="truncated">${item.Title}</h3>
+        <div class="news-item-meta">
+          <span class="date">Published: ${new Date(item.DatePublished).toLocaleDateString()}</span>
+          <span class="provider">${item.Provider}</span>
+        </div>
+      </div>
+    `;
+    return newsItem;
+  }
+
+  async function loadNews() {
+    const newsGrid = document.getElementById('news-grid');
+    if (!newsGrid) return;
+
+    const newsItems = await fetchNews();
+    newsItems.forEach((item) => {
+      const newsItemElement = createNewsItem(item);
+      newsGrid.appendChild(newsItemElement);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', loadNews);
+</script>
+
+<style is:global>
+  .news-feed {
+    width: 100%;
+    max-width: 1200px;
+    margin: var(--spacing-lg) auto;
+    padding: var(--spacing-lg);
+    font-family: var(--font-family-main);
+  }
+
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
+  .news-item {
+    text-decoration: none;
+    color: var(--color-text);
+    background-color: var(--color-background);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition:
+      transform 0.2s ease-in-out,
+      box-shadow 0.2s ease-in-out;
+    box-shadow: 0 4px 6px var(--color-shadow);
+  }
+
+  .news-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px var(--color-shadow);
+  }
+
+  .news-item-image {
+    height: 200px;
+    overflow: hidden;
+  }
+
+  .news-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .news-item-content {
+    padding: var(--spacing-md);
+    min-height: 120px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .news-item h3 {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-primary);
+  }
+
+  .news-item-meta {
+    font-size: var(--font-size-small);
+    color: var(--color-text-light);
+    display: flex;
+    justify-content: space-between;
+    opacity: 0.7;
+  }
+
+  /* Dark theme styles */
+  .dark-theme .news-item {
+    color: var(--color-text-dark);
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    box-shadow: 0 4px 6px var(--color-shadow-dark);
+  }
+
+  .dark-theme .news-item:hover {
+    box-shadow: 0 10px 15px var(--color-shadow-dark);
+  }
+
+  .dark-theme .news-item h3 {
+    color: var(--color-text-dark);
+  }
+
+  .dark-theme .news-item-meta {
+    color: var(--color-text-dark);
+  }
+</style>

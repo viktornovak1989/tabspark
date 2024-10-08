@@ -14,9 +14,25 @@ body {
   font-size: var(--font-size-base);
   color: var(--color-text);
   background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+  overflow-y: scroll;
 }
 
 .dark-theme body {
   color: var(--color-text-dark);
   background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+}
+
+.truncated {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+
+  @supports (-webkit-line-clamp: 2) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: initial;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
 }
