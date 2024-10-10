@@ -22,6 +22,21 @@ export const GET: APIRoute = async ({ request }) => {
 
   const cacheKey = searchParams.toString();
 
+  // CORS headers
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*', // Allow all origins
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+
+  // Handle OPTIONS request for CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
+  }
+
   // Check if we have a valid cached response
   if (cache[cacheKey] && Date.now() - cache[cacheKey].timestamp < CACHE_DURATION) {
     return new Response(JSON.stringify(cache[cacheKey].data), {
@@ -29,6 +44,7 @@ export const GET: APIRoute = async ({ request }) => {
       headers: {
         'Content-Type': 'application/json',
         'X-Cache': 'HIT',
+        ...corsHeaders,
       },
     });
   }
@@ -54,6 +70,7 @@ export const GET: APIRoute = async ({ request }) => {
       headers: {
         'Content-Type': 'application/json',
         'X-Cache': 'MISS',
+        ...corsHeaders,
       },
     });
   } catch (error) {
@@ -62,6 +79,7 @@ export const GET: APIRoute = async ({ request }) => {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
+        ...corsHeaders,
       },
     });
   }
