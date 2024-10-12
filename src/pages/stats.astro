@@ -1,0 +1,96 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ThemeSwitcher from '../components/ThemeSwitcher.astro';
+
+const title = 'WebBalance Statistics';
+---
+
+<Layout title={title}>
+  <main>
+    <ThemeSwitcher />
+    <h1>{title}</h1>
+    <div class="stats-content" id="stats-content">Loading stats...</div>
+  </main>
+</Layout>
+
+<script>
+  async function fetchStats() {
+    try {
+      const response = await fetch('/api/get-stats');
+      const data = await response.json();
+
+      const statsContent = document.getElementById('stats-content');
+      if (statsContent) {
+        const sortedStats = Object.entries<any>(data.stats)
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, 20);
+
+        statsContent.innerHTML = `
+          <p>Total submissions: ${data.totalSubmissions}</p>
+          <h2>Top Domains:</h2>
+          <ul>
+            ${sortedStats
+              .map(
+                ([domain, time]) => `
+              <li>${domain}: ${formatTime(time)}</li>
+            `
+              )
+              .join('')}
+          </ul>
+        `;
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+      const statsContent = document.getElementById('stats-content');
+      if (statsContent) {
+        statsContent.innerHTML = 'Error loading stats. Please try again later.';
+      }
+    }
+  }
+
+  function formatTime(seconds: number) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${hours}h ${minutes}m`;
+  }
+
+  fetchStats();
+</script>
+
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: var(--spacing-md);
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-md);
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .stats-content {
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+  }
+
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  li {
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-xs);
+    background-color: var(--color-bg-tertiary);
+    border-radius: var(--border-radius-sm);
+  }
+</style>
