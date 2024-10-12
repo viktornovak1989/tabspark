@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 
 interface StatEntry {
   domain: string;
-  time: number;
+  time: Record<string, number>;
 }
 
 interface StatsPayload {
@@ -25,12 +25,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     }
 
-    const decodedStats = payload.stats.map((entry) => ({
-      domain: atob(entry.domain),
-      time: entry.time,
-    }));
-
-    // Initialize or update stats in locals
+    // Initialize stats in locals if not exist
     if (!(locals as StatsStorage).statsStorage) {
       (locals as StatsStorage).statsStorage = {};
     }
@@ -38,9 +33,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
       (locals as StatsStorage).totalSubmissions = 0;
     }
 
-    for (const stat of decodedStats) {
-      (locals as StatsStorage).statsStorage[stat.domain] =
-        ((locals as StatsStorage).statsStorage[stat.domain] || 0) + stat.time;
+    for (const entry of payload.stats) {
+      const date = atob(entry.domain);
+      for (const [domain, time] of Object.entries(entry.time)) {
+        if (!(locals as StatsStorage).statsStorage[domain]) {
+          (locals as StatsStorage).statsStorage[domain] = 0;
+        }
+        (locals as StatsStorage).statsStorage[domain] += time;
+      }
     }
 
     // Increment total submissions
