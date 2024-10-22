@@ -6,19 +6,20 @@ interface CacheItem {
 }
 
 const cache: { [key: string]: CacheItem } = {};
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
 
 export const GET: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.search);
   const category = searchParams.get('category') || 'All';
+  const locale = searchParams.get('locale') || 'en-us';
 
   const apiUrl = 'https://feed.cf-se.com/v2/news';
   searchParams.set('numNews', '20');
   searchParams.set('url', 'https://www.pdf2docs.com');
   searchParams.set('q', category === 'All' ? 'Entertainment' : category);
   searchParams.set('gd', 'SY1002515');
-  searchParams.set('mkt', 'en-ca');
+  searchParams.set('mkt', locale);
 
   const cacheKey = searchParams.toString();
 
